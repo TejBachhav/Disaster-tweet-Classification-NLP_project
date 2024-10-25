@@ -1,0 +1,385 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Tweet Classifier</title>
+    <style>
+        /* Basic body and container styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+
+            /* Set the new background image */
+            background-image: url('static/images/Untitled design.png'); /* Link to the new image */
+            background-size: cover; /* Ensure the background covers the whole page */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; /* No repetition of the image */
+            background-attachment: fixed; /* Keep the background fixed as you scroll */
+        }
+
+        /* Container for form elements */
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+            z-index: 2; /* Place above the background */
+        }
+
+        /* Heading styles */
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        /* Form and input styles */
+        form {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eaeaea;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"], input[type="submit"] {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+
+        /* Media query for responsiveness */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            textarea {
+                font-size: 14px;
+            }
+
+            input[type="file"], input[type="submit"] {
+                width: 100%;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Disaster Tweet Classifier</h1>
+
+        <h2>Classify a Single Tweet</h2>
+        <form action="/classify_single" method="post">
+            <textarea name="tweet" rows="4" placeholder="Enter your tweet here..." required></textarea>
+            <input type="submit" value="Classify">
+        </form>
+
+        <h2>Classify Multiple Tweets</h2>
+        <form action="/classify_multiple" method="post">
+            <textarea name="tweets" rows="10" placeholder="Enter one tweet per line..." required></textarea>
+            <input type="submit" value="Classify">
+        </form>
+
+        <h2>Upload CSV File for Classification</h2>
+        <form action="/process_test" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv" required>
+            <input type="submit" value="Upload and Classify">
+        </form>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Disaster Tweet Classifier. All Rights Reserved.</p>
+    </div>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Tweet Classifier</title>
+    <style>
+        /* Basic body and container styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            overflow-x: hidden; /* Hide horizontal overflow */
+            overflow-y: scroll; /* Enable vertical scrolling */
+            height: 100vh; /* Ensure body takes full height */
+
+            /* Background color to simulate a stormy sky */
+            background: linear-gradient(to bottom, #333, #555);
+        }
+
+        /* Container for form elements */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+            z-index: 5; /* Place above the weather effects */
+        }
+
+        /* Heading styles */
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        /* Form and input styles */
+        form {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eaeaea;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"], input[type="submit"] {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+
+        /* Loader styling */
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: none; /* Initially hidden */
+        }
+
+        /* Loader animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Thunder effect */
+        @keyframes lightning {
+            0%, 10%, 20%, 30%, 50%, 60%, 80%, 100% {
+                background-color: rgba(255, 255, 255, 0);
+            }
+            5%, 25%, 55%, 85% {
+                background-color: rgba(255, 255, 255, 0.8); /* Simulate flash */
+            }
+        }
+
+        .lightning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            z-index: 2;
+            pointer-events: none; /* Don't interfere with UI interactions */
+            animation: lightning 5s infinite;
+        }
+
+        /* Tornado animation */
+        .tornado {
+            position: fixed;
+            top: 0;
+            left: 0;
+            left: 75%;
+            width: 10px;
+            height: 10px;
+            background: rgba(200, 200, 200, 0.7);
+            border-radius: 50%;
+            animation: swirl 3s linear infinite;
+            z-index: 3;
+            opacity: 0.6;
+        }
+
+        @keyframes swirl {
+            0% {
+                transform: rotate(0deg) translateX(0px);
+                width: 10px;
+                height: 10px;
+            }
+            100% {
+                transform: rotate(360deg) translateX(-200px);
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        /* Raindrop animation */
+        .raindrop {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 40px;
+            background-color: rgba(173, 216, 230, 0.7); /* Light blue color for raindrops */
+            animation: fall 2s infinite linear;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -40px;
+                opacity: 1;
+            }
+            100% {
+                top: 100vh;
+                opacity: 0;
+            }
+        }
+
+        /* Breeze effect (horizontal leaves/particles) */
+        .breeze {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255, 255, 0, 0.5); /* Yellow particles for breeze */
+            border-radius: 50%;
+            top: 50%;
+            left: 0;
+            animation: drift 8s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translateX(0);
+                top: 30%;
+            }
+            100% {
+                transform: translateX(100vw);
+                top: 20%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"></div> <!-- Loader element -->
+    
+    <div class="lightning"></div> <!-- Thunder effect -->
+
+    <div class="container">
+        <h1>Welcome to the Disaster Tweet Classifier</h1>
+
+        <h2>Classify a Single Tweet</h2>
+        <form action="/classify_single" method="post" onsubmit="showLoader()">
+            <textarea name="tweet" rows="4" placeholder="Enter your tweet here..." required></textarea>
+            <input type="submit" value="Classify">
+        </form>
+
+        <h2>Classify Multiple Tweets</h2>
+        <form action="/classify_multiple" method="post" onsubmit="showLoader()">
+            <textarea name="tweets" rows="10" placeholder="Enter one tweet per line..." required></textarea>
+            <input type="submit" value="Classify">
+        </form>
+
+        <h2>Upload CSV File for Classification</h2>
+        <form action="/process_test" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
+            <input type="file" name="file" accept=".csv" required>
+            <input type="submit" value="Upload and Classify">
+        </form>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Disaster Tweet Classifier. All Rights Reserved.</p>
+    </div>
+
+    <div class="rain"></div> <!-- Rain effect container -->
+
+    <div class="tornado"></div> <!-- Tornado animation -->
+
+    <div class="breeze"></div> <!-- Breeze animation -->
+
+    <!-- JavaScript to generate raindrops dynamically and show loader -->
+    <script>
+        const rainContainer = document.querySelector('.rain');
+        const numberOfRaindrops = 1000; // Adjust this number for more/less raindrops
+
+        for (let i = 0; i < numberOfRaindrops; i++) {
+            const raindrop = document.createElement('div');
+            raindrop.classList.add('raindrop');
+            raindrop.style.left = Math.random() * 100 + 'vw'; // Random horizontal position
+            raindrop.style.animationDuration = (Math.random() * 2 + 1) + 's'; // Random fall speed
+            raindrop.style.opacity = Math.random(); // Random opacity
+            rainContainer.appendChild(raindrop);
+        }
+
+        // Show the loader when the form is submitted
+        function showLoader() {
+            document.getElementById('loader').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
