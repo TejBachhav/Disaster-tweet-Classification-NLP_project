@@ -2,7 +2,11 @@
     "builds": [
       {
         "src": "app2.py",
-        "use": "@vercel/python"
+        "use": "@vercel/python",
+        "config": {
+          "runtime": "python3.9",
+          "includeFiles": ["requirements.txt"]
+        }
       }
     ],
     "routes": [
@@ -10,6 +14,11 @@
         "src": "/(.*)",
         "dest": "app2.py"
       }
-    ]
+    ],
+    "env": {
+      "PIP_NO_CACHE_DIR": "false",
+      "PYTHONUNBUFFERED": "1"
+    },
+    "buildCommand": "curl https://sh.rustup.rs -sSf | sh -s -- -y && source $HOME/.cargo/env && pip install -r requirements.txt --prefer-binary"
   }
   
