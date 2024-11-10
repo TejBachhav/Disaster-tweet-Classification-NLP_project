@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Tweet Classifier - Predictions</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #loading-container {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            background-color: #ddd;
+        }
+        #loading-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #4caf50;
+            transition: width 0.5s;
+        }
+        .result-item {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            background-color: #e7f3ff;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Disaster Tweet Classifier - Predictions</h1>
+    <form id="tweetForm">
+        <label for="tweets">Enter Tweets (one per line):</label><br>
+        <textarea id="tweets" name="tweets" rows="4" required></textarea><br><br>
+        <button type="submit">Classify</button>
+    </form>
+    
+    <!-- Loading Bar -->
+    <div id="loading-container">
+        <div id="loading-bar"></div>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#tweetForm').on('submit', function(event) {
+                event.preventDefault();
+                
+                const tweets = $('#tweets').val().trim();
+                
+                if (tweets === "") {
+                    $('#result').html('<span class="error">Please enter at least one tweet before submitting.</span>');
+                    return;
+                }
+
+                $('#loading-container').show(); // Show loading bar
+                $('#loading-bar').css('width', '0%'); // Reset loading bar
+
+                // Split textarea input into individual tweets
+                const tweetList = tweets.split('\n').map(tweet => tweet.trim()).filter(tweet => tweet);
+
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ tweets: tweetList }),
+                    xhr: function() {
+                        const xhr = new window.XMLHttpRequest();
+                        xhr.onprogress = function(event) {
+                            if (event.lengthComputable) {
+                                const percentComplete = (event.loaded / event.total) * 100;
+                                $('#loading-bar').css('width', percentComplete + '%');
+                            }
+                        };
+                        return xhr;
+                    },
+                    success: function(data) {
+                        $('#loading-container').hide(); // Hide loading bar
+                        $('#result').empty(); // Clear previous results
+
+                        if (Array.isArray(data)) {
+                            data.forEach(function(result) {
+                                $('#result').append(`
+                                    <div class="result-item">
+                                        <h4>Tweet:</h4>
+                                        <p>${result.tweet}</p>
+                                        <h4>Prediction:</h4>
+                                        <p>This tweet is classified as: <strong>${result.label}</strong></p>
+                                        <p>Probability: ${(result.probability * 100).toFixed(2)}%</p>
+                                    </div>
+                                `);
+                            });
+                        } else {
+                            $('#result').append(`
+                                <div class="result-item">
+                                    <h4>Error:</h4>
+                                    <p>${data.error}</p>
+                                </div>
+                            `);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loading-container').hide(); // Hide loading bar
+                        $('#result').html(`<span class="error">Error: ${xhr.responseText || error}</span>`);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
