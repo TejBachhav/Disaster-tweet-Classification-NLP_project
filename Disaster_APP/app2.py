@@ -13,7 +13,7 @@ from text_vectorization import create_text_vectorization_layer
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
+from os import getenv
 # Load English stopwords
 try:
     nltk.download('punkt', quiet=True)
@@ -206,4 +206,6 @@ def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
+
