@@ -39,7 +39,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'  # Folder to store uploaded files
 
 # Load the train dataset
-train_dataset_path = r"C:\Users\Tej Bachhav\OneDrive\Documents\NLP\Disaster\train_dataset.csv"
+train_dataset_path = r"train_dataset.csv"
 train_dataset = pd.read_csv(train_dataset_path)
 
 # Create the text vectorization layer using the train dataset
@@ -48,10 +48,10 @@ train_tf, text_vectorization_layer, vocab = create_text_vectorization_layer(trai
 # Build and load TextVectorization layer's weights
 text_vectorization_model = keras.Sequential([text_vectorization_layer])
 text_vectorization_model.build(input_shape=(None,))
-text_vectorization_model.load_weights(r"C:\Users\Tej Bachhav\OneDrive\Documents\NLP\Disaster\text_vectorization_layer.weights.h5")
+text_vectorization_model.load_weights(r"text_vectorization_layer.weights.h5")
 
 # Load the trained model using the custom layers (PositionalEmbedding, TransformerEncoder)
-model_path = os.path.join(r"C:\Users\Tej Bachhav\OneDrive\Documents\NLP\Disaster", "path_to_your_model.h5")
+model_path = r"path_to_your_model.h5"
 with custom_object_scope({'PositionalEmbedding': PositionalEmbedding, 'TransformerEncoder': TransformerEncoder}):
     model = keras.models.load_model(model_path)
 
